@@ -2,8 +2,10 @@ package repository
 
 import (
 	"database/sql"
-	"example/solid/order"
+	"encoding/json"
 	"fmt"
+
+	"solid/order"
 )
 
 type SQLiteRepo struct {
@@ -28,12 +30,27 @@ func (r *SQLiteRepo) Init() error {
 }
 
 func (r *SQLiteRepo) SaveOrder(order *order.Order) error {
-	_, err := r.db.Exec(
+	productsJSON, err := json.Marshal(order.Products)
+	if err != nil {
+		return fmt.Errorf("failed to marshal products: %w", err)
+	}
+
+	result, err := r.db.Exec(
 		"INSERT INTO orders (customer, products, total, status) VALUES (?, ?, ?, ?)",
 		order.Customer,
-		fmt.Sprintf("%v", order.Products),
+		string(productsJSON),
 		order.Total,
 		order.Status,
 	)
-	return err
+	if err != nil {
+		return fmt.Errorf("failed to save order: %w", err)
+	}
+
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("failed to get last insert id: %w", err)
+	}
+	order.ID = int(id)
+
+	return nil
 }

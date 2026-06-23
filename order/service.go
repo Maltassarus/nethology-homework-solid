@@ -2,23 +2,22 @@ package order
 
 import (
 	"errors"
-	"main/repository"
 )
 
-type Order struct {
-	ID       int
-	Customer string
-	Products []string
-	Total    float64
-	Status   string
+type RepositoryWriter interface {
+	SaveOrder(order *Order) error
+}
+
+type Notifier interface {
+	Send(customer string, order *Order) error
 }
 
 type OrderService struct {
-	repo     repository.RepositoryWriter
-	notifier notification.Notifier
+	repo     RepositoryWriter
+	notifier Notifier
 }
 
-func NewOrderService(repo repository.RepositoryWriter, notifier notification.Notifier) *OrderService {
+func NewOrderService(repo RepositoryWriter, notifier Notifier) *OrderService {
 	return &OrderService{
 		repo:     repo,
 		notifier: notifier,

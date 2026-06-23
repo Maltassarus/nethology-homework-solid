@@ -2,7 +2,8 @@ package notification
 
 import (
 	"fmt"
-	"main/order"
+
+	"solid/order"
 )
 
 type SMSSender struct {
@@ -15,7 +16,11 @@ func NewSMSSender(phoneNumber string) *SMSSender {
 	}
 }
 
+// Send реализует интерфейс order.Notifier
 func (s *SMSSender) Send(customer string, order *order.Order) error {
-	fmt.Printf("Детали отправленного SMS уведомления заказа: ID=%d, Сумма=%.2f\n", order.ID, order.Total)
+	fmt.Printf("SMS уведомление %s\n", customer)
+	fmt.Printf("Номер телефона: %s\n", s.phoneNumber)
+	fmt.Printf("Заказ #%d, сумма %.2f руб.\n", order.ID, order.Total)
+	fmt.Printf("Товары: %v\n", order.Products)
 	return nil
 }
